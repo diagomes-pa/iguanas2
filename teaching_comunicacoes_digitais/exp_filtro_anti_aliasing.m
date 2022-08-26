@@ -15,19 +15,19 @@ T = 20; % Tempo total da simulação
 
 v = set_fund_vars(Ts, T);
 
-exp_Ts = 0.002; % Período de amostragem simulado no experimento
-L = int32(exp_Ts/Ts); % Número de amostras originais entre as simuladas
+exp_Ts = 0.001; % Período de amostragem simulado no experimento
+L = exp_Ts/Ts; % Número de amostras originais entre as simuladas
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Implementação do experimento
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-s_a = src_filtNoise(1, 100) + src_sinusoid(1, 350, 0); % Sinal analógico
-s_d = s_a(1:L:end); % Sinal discreto
+s_a = src_filtNoise(1, 100) + src_sinusoid(2, 350, 0); % Sinal analógico
+s_d = s_a(1:int32(L):end); % Sinal discreto
 
-[b, a] = butter(16, 1/L); % Filtro antialiasing
+b = butter(16, 1/(2*L)); % Filtro antialiasing
 s_a_filt = filter(b, 1, s_a);
-s_d_aa = s_a_filt(1:L:end);% Sinal discreto com filtro anti-aliasing
+s_d_aa = s_a_filt(1:int32(L):end);% Sinal discreto com filtro anti-aliasing
 
 %s_d_aa = decimate(s_a, L);
 

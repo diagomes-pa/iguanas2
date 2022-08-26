@@ -15,7 +15,7 @@ T = 10; % Tempo da aquisição
 b_aud = 8; % Número de bits por amostra
 v = set_fund_vars_aud_rt(Fs_aud, T, b_aud);
 
-dec_factor = 1;
+subsa_factor = 16;
 aud_file = '../data/no_meio_do_pitiu.wav';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,12 +23,12 @@ aud_file = '../data/no_meio_do_pitiu.wav';
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 aud_sig = aud_audioRead(aud_file, T);
-aud_dec = decimate(aud_sig, dec_factor);
+aud_dec = decimate(aud_sig, subsa_factor);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Saída de Resultados e Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-aud_audioPlay(aud_dec, 1/dec_factor);
+aud_audioPlay(aud_dec, 1/subsa_factor);
 
 

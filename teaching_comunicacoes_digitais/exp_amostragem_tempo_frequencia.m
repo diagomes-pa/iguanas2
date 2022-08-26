@@ -15,7 +15,7 @@ T = 1; % Tempo total da simulação
 
 v = set_fund_vars(Ts, T);
 
-exp_Ts = 0.001; % Período de amostragem simulado no experimento
+exp_Ts = 0.008; % Período de amostragem simulado no experimento
 L = int32(exp_Ts/Ts); % Número de amostras originais entre as simuladas
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
