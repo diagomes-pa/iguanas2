@@ -86,7 +86,7 @@ s = modulador(m);
 %% Canal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n = src_noise(ch_n_power);
-r = channel(s, 'lpf', [10, 100]) + n;
+r = channel(s, 'lpf', [10, 150]) + n;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Receptor
@@ -96,5 +96,5 @@ y = demodulador(r);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sk_freqSubPlot({m, r, y}, {'m', 'r', 'y'}, {v.F_Nyquist, v.F_Nyquist});
-figure, sk_timeSubPlot({m, s, r, y}, {'m', 's', 'r', 'y'}, {'c', 'c', 'c', 'c'});
+sk_freqSubPlot({m, r, y}, {'m', 'r', 'y'}, {v.F_Nyquist, v.F_Nyquist, v.F_Nyquist});
+sk_timeSubPlot({m, s, r, y}, {'m', 's', 'r', 'y'}, {'c', 'c', 'c', 'c'});
