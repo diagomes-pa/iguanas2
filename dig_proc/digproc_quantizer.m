@@ -18,13 +18,16 @@ function [sig_q, integer_codeword, levels]= digproc_quantizer(sig_d, b)
   if(min_sig < 0)
     sig_up = sig_d + abs(min_sig + Delta/2);
     sig_norm = sig_up/(Vpp-Delta);
+    integer_codeword = round(sig_norm/Delta*(Vpp-Delta));
+    sig_q = integer_codeword*Delta - abs(min_sig + Delta/2);
   else
     sig_up = sig_d - abs(min_sig + Delta/2);
     sig_norm = sig_up/(Vpp-Delta);
+    integer_codeword = round(sig_norm/Delta*(Vpp-Delta));
+    sig_q = integer_codeword*Delta + abs(min_sig + Delta/2);
   endif
 
-  integer_codeword = round(sig_norm/Delta*(Vpp-Delta));
-  sig_q = integer_codeword*Delta + abs(min_sig + Delta/2);
+
 
   levels = min_sig+(Delta/2):Delta:max_sig-(Delta/2);
 

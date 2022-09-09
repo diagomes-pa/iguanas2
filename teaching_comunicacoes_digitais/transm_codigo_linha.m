@@ -8,11 +8,11 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o fonte de sinal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function m = fonte_sinal()
+function m = fonte_sinal(fileName)
 
   global v;
 
-  m = txtFile_num_to_bs('data_sample/random_numbers_2.txt', 8, 'natural');
+  m = txtFile_num_to_bs(fileName, 8, 'natural');
 
 endfunction
 
@@ -64,11 +64,12 @@ v = set_fund_vars_digital(Ts, T, Tsym);
 
 ch_n_power = 1e-5;
 cod_linha = 'nrz-polar';
+fileName = 'data_sample/random_numbers_10.txt';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-m = fonte_sinal();
+m = fonte_sinal(fileName);
 s = modulador(m, cod_linha);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
