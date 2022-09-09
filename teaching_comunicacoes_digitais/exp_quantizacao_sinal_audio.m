@@ -11,7 +11,7 @@ clc
 global v;
 
 Fs_aud = 44100; % Frequência de amostragem áudio
-T = 1; % Tempo da aquisição
+T = 10; % Tempo da aquisição
 b_aud = 8; % Número de bits por amostra
 v = set_fund_vars_aud_rt(Fs_aud, T, b_aud);
 

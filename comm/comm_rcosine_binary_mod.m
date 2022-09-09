@@ -1,33 +1,59 @@
-function s = comm_rcosine_binary_mod(bs, r)
+function s = comm_rcosine_binary_mod(bs, r, code)
+  % bs: bitstream.
+  % r: fator de roll-off.
+  % code: 'onoff', 'polar' ou 'bipolar'.
 
   global v;
 
   s = zeros(v.N, 1);
 
-  ak = [-1, 1];
+  switch code
+    case 'onoff'
+      ak = [0, 1];
+    case 'polar'
+      ak = [-1, 1];
+    case 'bipolar'
+      ak = [];
+  endswitch
+
   pulse_shape = rcosfir(r, [-3 3], v.L);
 
-  x = map_bit_real(bs, ak);
+  x = map_bit_real(bs, ak, code);
   s_ = conv(x, pulse_shape);
   s_ = s_(3*v.L + 1:end);
   s(1:length(s_)) = s_;
 
 endfunction
 
-function x = map_bit_real(bs, ak)
+function x = map_bit_real(bs, ak, code)
 
   global v;
 
   Nsym = length(bs);
   x = zeros(Nsym*v.L, 1);
 
-  for k = 1 : Nsym
+  if(strcmp(code, 'bipolar'))
 
-    if(bs(k) == '0')
-      x((k-1)*v.L + 1) = ak(1);
-    else
-      x((k-1)*v.L + 1) = ak(2);
-    endif
-  endfor
+    last_one = -1;
+    for k = 1 : Nsym
+      if(bs(k) == '0')
+        x((k-1)*v.L + 1) = 0;
+      else
+        x((k-1)*v.L + 1) = -last_one;
+        last_one = -last_one;
+      endif
+    endfor
+
+  else
+
+    for k = 1 : Nsym
+      if(bs(k) == '0')
+        x((k-1)*v.L + 1) = ak(1);
+      else
+        x((k-1)*v.L + 1) = ak(2);
+      endif
+    endfor
+
+  endif
 
 endfunction

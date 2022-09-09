@@ -1,24 +1,29 @@
 function [b, a] = selecionador_canal(ch_model, ch_par, show_plot)
+  % ch_model: modelo do canal.
+  % ch_par: parâmetros de configuração do canal de acordo com o tipo escolhido.
   % show_plot: 1, mostra os gráficos de espectro e resposta ao impulso.
+
+  pkg load signal;
 
   global v;
 
   switch ch_model
-    case 'id'
+    case 'id' % Canal do tipo identidade.
       [b, a] = ch_identity();
-    case 'lpf'
+    case 'lpf' % Canal do tipo filtro passa-baixa.
       filt_order = ch_par(1);
-      f_cut_norm = ch_par(2)/(v.Fs/2);
+      f_cut_norm = ch_par(2)/(v.F_Nyquist);
       [b, a] = butter(filt_order, f_cut_norm);
-    case 'tp'
+    case 'tp' % Modelo de canal de par trançado
       [b, a] = ch_twisted_pair(ch_par(1));
   endswitch
 
+
   if(show_plot)
 
-    [h, w] = freqz(b, a, 512, v.Fs);
-    [g, w_g] = grpdelay(b, a, 512, v.Fs);
-    plot(w, abs(h), "LineWidth", 1,  w, unwrap(angle(h)), "LineWidth", 1, w_g, g*v.Ts, "LineWidth", 1);
+    [h, w] = freqz(b, a, [], v.Fs);
+    [g, w_g] = grpdelay(b, a, [], v.Fs);
+    plot(w, 10*log10(abs(h)), "LineWidth", 1,  w, unwrap(angle(h)), "LineWidth", 1, w_g, g*v.Ts, "LineWidth", 1);
     xlabel("Frequência");
     legend({'Magnitude', 'Fase', 'Atraso Grupo'});
     h=get(gcf, "currentaxes");

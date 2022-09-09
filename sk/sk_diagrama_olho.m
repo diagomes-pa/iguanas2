@@ -3,7 +3,7 @@ function sk_diagrama_olho(sig, n_symbols, t_offset)
 
   global v;
 
-  eyediagram(sig(t_offset:end), n_symbols*v.L);
+  eyediagram(sig(t_offset:end), n_symbols*round(v.L));
 
   h=get(gcf, "currentaxes");
   set(h, "fontsize", 14);

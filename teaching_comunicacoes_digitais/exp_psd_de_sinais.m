@@ -10,29 +10,31 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global v;
 
-pkg load signal
-
-Ts = 0.001; % Período de amostragem
-T = 1; % Tempo total da simulação
+Ts = 0.0001; % Período de amostragem
+T = 2; % Tempo total da simulação
 v = set_fund_vars(Ts, T);
 
-P = 1;
-f_cut = 300;
-b = 2;
+sig_type = 5;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Implementação do experimento
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%s = src_filtNoise(P, f_cut);
-s = src_sinusoid(1, 2, 0);
-[s_q,integer_codeword,levels] = digproc_quantizer(s,b);
-e_q = s - s_q;
-
+switch(sig_type)
+  case 1
+    x = src_sinusoid(1, 500, 0);
+  case 2
+    x = src_noise(1);
+  case 3
+    x = src_filtNoise(1, 300);
+  case 4
+    m = src_filtNoise(1, 300);
+    x = comm_dsbscMod(m, 2000);
+  case 5
+    m = src_filtNoise(1, 300);
+    x = comm_AMMod(m, 1, 2000);
+endswitch
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Saída de Resultados e Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sk_timePlot([e_q, s, s_q], {"e", "s", "s_q"}, {"d", "d", "d"});
-P_e = mean(e_q.^2)
-P_e_est = 1/(3*(2^b)^2)
-
+sk_psdSubPlot({x}, {'x'}, {v.F_Nyquist});

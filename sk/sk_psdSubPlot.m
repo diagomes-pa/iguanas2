@@ -19,16 +19,14 @@ function sk_psdSubPlot(sig, tit, F_nyquist)
       subplot(min(n_sig, 3), ceil(n_sig/3), p);
     endif
 
-    wind = hamming(1024);
-    [spectra, freq] = pwelch(sig{p}, [], [], [], v.Fs, 'shift', 'db', 'none', []);
-    plot(freq, spectra, collor_order{p}, "LineWidth", 1);
+    Max_freq = F_nyquist{p};
+    freq = linspace(-Max_freq, Max_freq, length(sig{p}));
 
-    if(F_nyquist)
-      xticks([-Max_freq, Max_freq]);
-    else
-      xticks([-Max_freq Max_freq]);
-      xticklabels({"-Fs/2", "Fs/2"})
-    endif
+    wind = hamming(1000);
+    [spectra, freq] = pwelch(sig{p}, wind, [], [], v.Fs, 'half', 'dB', 'none', []);
+    plot(freq, 10*log10(spectra), collor_order{p}, "LineWidth", 1);
+
+    xticks([-Max_freq, Max_freq]);
 
     xlabel("Frequência");
     ylabel('PSD (dB)');
