@@ -1,7 +1,6 @@
-function [b, a] = selecionador_canal(ch_model, ch_par, show_plot)
+function [b, a] = selecionador_canal(ch_model, ch_par)
   % ch_model: modelo do canal.
   % ch_par: parâmetros de configuração do canal de acordo com o tipo escolhido.
-  % show_plot: 1, mostra os gráficos de espectro e resposta ao impulso.
 
   pkg load signal;
 
@@ -19,7 +18,7 @@ function [b, a] = selecionador_canal(ch_model, ch_par, show_plot)
   endswitch
 
 
-  if(show_plot)
+  if(v.debug)
 
     [h, w] = freqz(b, a, [], v.Fs);
     [g, w_g] = grpdelay(b, a, [], v.Fs);

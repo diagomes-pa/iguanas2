@@ -36,7 +36,7 @@ function r = channel(s, ch_model, ch_par)
 
   global v;
 
-  [b, a] = selecionador_canal(ch_model, ch_par, 0);
+  [b, a] = selecionador_canal(ch_model, ch_par);
   r = filter(b, a, s);
 
 endfunction
@@ -65,7 +65,7 @@ T = 1; % Tempo total da simulação
 Tsym = 40*Ts; % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
 
-debug = 0;
+debug = 1;
 v.debug = debug;
 
 fonte_fileName = 'data_sample/random_numbers_100.txt';

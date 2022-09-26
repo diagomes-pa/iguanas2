@@ -34,7 +34,7 @@ function r = channel(s, ch_model, ch_par, show_plot)
 
   global v;
 
-  [b, a] = selecionador_canal('id', [], 0);
+  [b, a] = selecionador_canal('id', []);
   r = filter(b, a, s);
 
 endfunction
@@ -61,6 +61,9 @@ Ts = 0.0001; % Período de amostragem
 T = 0.2; % Tempo total da simulação
 Tsym = 0.01; % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
+
+debug = 1;
+v.debug = debug;
 
 ch_n_power = 1e-3;
 cod_linha = 'nrz-polar';
