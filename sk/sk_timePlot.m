@@ -16,6 +16,8 @@ function sk_timePlot(sig, leg, time_gran)
   max_val = -inf;
   min_val = inf;
 
+  figure();
+
   for p = 1 : n_sig
     if(time_gran{p} == 'c') % Para sinais de tempo contínuo.
       if(max(sig{p}) > max_val) max_val = max(sig{p}); end

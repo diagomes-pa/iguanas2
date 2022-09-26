@@ -21,9 +21,9 @@ v = set_fund_vars(Ts, T);
 %% Implementação do experimento
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%x = src_sinusoid(1, 2, 0);
-x = src_filtNoise(1, 100)
 %x = src_noise(1);
+%x = src_filtNoise(1, 300)
+x = src_sinusoid(1, 2, 0);
 
 [R, lag] = xcorr(x)
 

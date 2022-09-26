@@ -63,7 +63,7 @@ Tsym = 0.01; % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
 
 ch_n_power = 1e-5;
-cod_linha = 'rz-polar';
+cod_linha = 'nrz-polar';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor

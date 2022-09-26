@@ -70,7 +70,7 @@ T = 0.2; % Tempo total da simulação
 Tsym = 0.01; % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
 
-cod_linha = 'rz-polar';
+cod_linha = 'nrz-polar';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Implementação do experimento
