@@ -20,18 +20,39 @@ function [b, a] = selecionador_canal(ch_model, ch_par)
 
   if(v.debug)
 
+    Max_freq = v.F_Nyquist;
+
     [h, w] = freqz(b, a, [], v.Fs);
     [g, w_g] = grpdelay(b, a, [], v.Fs);
-    plot(w, 10*log10(abs(h)), "LineWidth", 1,  w, unwrap(angle(h)), "LineWidth", 1, w_g, g*v.Ts, "LineWidth", 1);
-    xlabel("Frequência");
-    legend({'Magnitude', 'Fase', 'Atraso Grupo'});
-    h=get(gcf, "currentaxes");
-    set(h, "fontsize", 16);
+
+    subplot(3, 1, 1);
+    plot(w, 10*log10(abs(h)), 'LineWidth', 1.5);
+    xticks([0, Max_freq]);
+    xlabel('Frequência');
+    ylabel('Amplitude (dB)');
+    title('Ganho do Canal');
+    grid
+
+    subplot(3, 1, 2);
+    plot(w, unwrap(angle(h)), 'LineWidth', 1.5);
+    xticks([0, Max_freq]);
+    xlabel('Frequência');
+    ylabel('Ângulo (rad)');
+    title('Fase do Canal');
+    grid
+
+    subplot(3, 1, 3);
+    plot(w_g, g*v.Ts, 'LineWidth', 1.5);
+    xticks([0, Max_freq]);
+    xlabel('Frequência');
+    ylabel('Tempo (s)');
+    title('Atraso de Grupo do Canal');
     grid
 
     imp_resp = impz(b, a);
-    figure, plot(imp_resp, "LineWidth", 1);
-    xlabel("Amostras");
+    figure, plot(imp_resp, 'LineWidth', 1.5);
+    xlabel('Amostras');
+    ylabel('Magnitude');
     legend({'Resposta ao Impulso do Canal'});
     h=get(gcf, "currentaxes");
     set(h, "fontsize", 16);

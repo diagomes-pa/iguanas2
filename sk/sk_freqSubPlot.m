@@ -27,14 +27,6 @@ function sk_freqSubPlot(sig, tit, F_nyquist)
     plot(freq, tmp_spec, collor_order{p}, "LineWidth", 1);
 
     xticks([-Max_freq, Max_freq]);
-
-    %if(F_nyquist)
-    %  xticks([-Max_freq, Max_freq]);
-    %else
-    %  xticks([-Max_freq Max_freq]);
-    %  xticklabels({"-Fs/2", "Fs/2"})
-    %endif
-
     xlabel("Frequência")
     title(tit{p});
 

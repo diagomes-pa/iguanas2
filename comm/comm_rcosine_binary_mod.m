@@ -1,7 +1,8 @@
-function s = comm_rcosine_binary_mod(bs, r, code)
+function s = comm_rcosine_binary_mod(bs, r, code, n_symb)
   % bs: bitstream.
   % r: fator de roll-off.
   % code: 'onoff', 'polar' ou 'bipolar'.
+  % n_symb: o número de símbolos adjacentes que o pulso se espalha.
 
   global v;
 
@@ -16,7 +17,7 @@ function s = comm_rcosine_binary_mod(bs, r, code)
       ak = [];
   endswitch
 
-  pulse_shape = rcosfir(r, [-3 3], v.L);
+  pulse_shape = rcosfir(r, [-n_symb n_symb], v.L);
 
   x = map_bit_real(bs, ak, code);
   s_ = conv(x, pulse_shape);

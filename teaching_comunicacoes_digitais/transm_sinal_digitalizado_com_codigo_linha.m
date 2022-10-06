@@ -10,12 +10,12 @@ clc
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o fonte de sinal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function bs = fonte_sinal(cad_Ts, b, cod_bits)
+function bs = fonte_sinal(cad_Ts, b_quant, cod_bits)
 
   global v;
 
   m = src_sinusoid_T(1, 10, 0, 0.03);
-  bs = digproc_CAD_customizavel(m, cad_Ts, b, cod_bits);
+  bs = digproc_CAD_customizavel(m, cad_Ts, b_quant, cod_bits);
 
 endfunction
 
@@ -33,18 +33,20 @@ endfunction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o canal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function y = channel(s, ch_model, ch_par, rm_grd, ch_show_plot)
+function y = channel(s, ch_model, ch_par, rm_grd)
 
   global v;
 
-  [b, a] = selecionador_canal(ch_model, ch_par, ch_show_plot);
+  [b, a] = selecionador_canal(ch_model, ch_par);
   y = filter(b, a, s);
 
-  if(rm_grd) % Remove o atraso de grupo.
+  if(rm_grd)
+
     [g, w_g] = grpdelay(b, a, [], v.Fs);
     grd = round(mean(g));
     y(1:grd) = [];
     y = [y; zeros(grd, 1)];
+
   endif
 
 endfunction
@@ -67,33 +69,36 @@ endfunction
 %% Variáveis da simulação
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global v;
-Ts = 0.00001; % Período de amostragem
+Ts = 1/44100; % Período de amostragem
 T = 0.04; % Tempo total da simulação
 
 ch_n_power = 1e-4; %
 cad_Ts = 0.001;
 cad_Fs = 1/cad_Ts;
-b = 6;
+b_quant = 6;
 cod_bits = 'natural';
-cod_linha = 'rz-polar';
+cod_linha = 'nrz-onoff';
 ch_model = 'lpf';
-f_cut = 48000;
+f_cut = 12000;
 ch_par = [4, f_cut];
 ch_show_plot = 0;
 
-Tsym = 1/(cad_Fs*b); % Período de símbolo
+Tsym = 1/(cad_Fs*b_quant); % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
+
+debug = 1;
+v.debug = debug;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-bs = fonte_sinal(cad_Ts, b, cod_bits);
+bs = fonte_sinal(cad_Ts, b_quant, cod_bits);
 s = modulador(bs, cod_linha);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Canal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-y = channel(s, ch_model, ch_par, 1, ch_show_plot);
+y = channel(s, ch_model, ch_par, 1);
 n = src_noise(ch_n_power);
 r = y + n;
 
