@@ -65,11 +65,11 @@ T = 1; % Tempo total da simulação
 Tsym = 40*Ts; % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
 
-debug = 1;
+debug = 0;
 v.debug = debug;
 
 fonte_fileName = 'data_sample/random_numbers_100.txt';
-jamming_fileName = 'data_sample/sinal_jamming_naive_1e-3_44100.txt';
+jamming_fileName = 'data_sample/sinal_jamming_naive_1e-2_44100.txt';
 cod_linha = 'nrz-onoff';
 id_piloto = '50';
 ch_model = 'lpf';
@@ -95,6 +95,6 @@ bs_demod = demodulador(r, cod_linha, id_piloto);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Saída de Resultados e Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sk_timePlot({r}, {'r'}, {'c'});
+sk_timePlot({s, r}, {'s', 'r'}, {'c', 'c'});
 sk_psdSubPlot({s, r}, {'s', 'r'}, {v.F_Nyquist, v.F_Nyquist});
 taxa_erro_bit = comm_calcula_taxa_erro_bit(m, bs_demod)

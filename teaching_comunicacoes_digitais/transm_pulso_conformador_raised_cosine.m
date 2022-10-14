@@ -39,10 +39,18 @@ function y = channel(s, ch_model, ch_par, rm_grd)
 
   if(rm_grd)
 
-    [g, w_g] = grpdelay(b, a, [], v.Fs);
-    grd = round(mean(g));
-    y(1:grd) = [];
-    y = [y; zeros(grd, 1)];
+    %[g, w_g] = grpdelay(b, a, [], v.Fs);
+    %grd = round(mean(g));
+
+    % Determina o atraso de grupo pelo pico da resposta ao impulso.
+    imp_resp = impz(b, a);
+    [pks idx] = findpeaks(imp_resp, 'DoubleSided');
+    pks
+    pico = max(pks)
+    grd = find(imp_resp==pico)
+
+    y(1:grd-1) = [];
+    y = [y; zeros(grd-1, 1)];
 
   endif
 
@@ -71,14 +79,14 @@ T = 0.16; % Tempo total da simulação
 Tsym = 80*Ts; % Período de símbolo
 v = set_fund_vars_digital(Ts, T, Tsym);
 
-debug = 1;
+debug = 0;
 v.debug = debug;
 
 ch_n_power = 1e-5;
 ch_model = 'lpf';
-f_cut = 250;
+f_cut = 551;
 ch_par = [4, f_cut];
-rolloff = 0.5;
+rolloff = 1;
 n_symb = 3;
 code = 'onoff';
 fonte_fileName = 'data_sample/random_numbers_10.txt';
@@ -93,7 +101,7 @@ s = modulador(bs, rolloff, code, n_symb);
 %% Canal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 n = src_noise(ch_n_power);
-r = channel(s, ch_model, ch_par, 1) + n;
+r = channel(s, ch_model, ch_par, 0) + n;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Receptor
@@ -104,5 +112,5 @@ y = demodulador(r);
 %% Saída de Resultados e Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 sk_psdSubPlot({s}, {'s'}, {v.F_Nyquist});
-sk_timePlot({s, r, bs}, {'s', 'r', 'bs'}, {'c', 'c', 't'});
+sk_timePlot({s, bs}, {'s', 'bs'}, {'c', 't'});
 %sk_diagrama_olho(r, 2, 1);
