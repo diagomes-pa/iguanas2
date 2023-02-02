@@ -4,28 +4,32 @@
 clear
 close
 clc
+warning('off', 'all');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o fonte de sinal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function m = fonte_sinal(fonte_fileName)
+function m = fonte_sinal()
 
   global v;
 
-  m = txtFile_num_to_bs(fonte_fileName, 8, 'natural');
-  v.n_Tx_bits = length(m);
+  aud_sig = aud_audioRead('../data/no_meio_do_pitiu.wav', v.T);
+
+  f_cut_norm = 2000/(v.F_Nyquist);
+  [b, a] = butter(6, f_cut_norm);
+
+  m = filter(b, a, aud_sig);
 
 endfunction
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o modulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function x = modulador(m, cod_linha, id_piloto)
+function s = modulador(m)
 
   global v;
 
-  s = comm_codigo_linha_mod(m, cod_linha);
-  x =  comm_anexa_piloto(s, id_piloto);
+  s = comm_dsbscMod(m, 8000);
 
 endfunction
 
@@ -36,7 +40,7 @@ function r = channel(s, ch_model, ch_par)
 
   global v;
 
-  [b, a] = selecionador_canal(ch_model, ch_par);
+  [b, a, delay] = selecionador_canal(ch_model, ch_par, 'irp');
   r = filter(b, a, s);
 
 endfunction
@@ -44,15 +48,18 @@ endfunction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o demodulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function bs = demodulador(r, cod_linha, id_piloto)
+function y = demodulador(r)
 
   global v;
 
-  r_sincronizado = comm_sincronizador_piloto(r, id_piloto);
-  bs = comm_codigo_linha_demod(r_sincronizado, cod_linha);
+  y = comm_dsbscDemod(r, 8000, 2000);
 
 endfunction
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Teste
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -60,43 +67,37 @@ endfunction
 %% Variáveis da simulação
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global v;
-Ts = 1/44100; % Período de amostragem
-T = 1; % Tempo total da simulação
-Tsym = 40*Ts; % Período de símbolo
-v = set_fund_vars_digital(Ts, T, Tsym);
+Fs_aud = 44100; % Frequência de amostragem áudio
+T = 20; % Tempo da aquisição
+b_aud = 8; % Número de bits por amostra
+debug = 0; % Determina se a simulação vai mostrar as infomrmações internas de algumas etapas.
+v = set_fund_vars_aud_rt(Fs_aud, T, b_aud, debug);
 
-debug = 1;
-v.debug = debug;
-
-fonte_fileName = 'data_sample/random_numbers_100.txt';
-cod_linha = 'nrz-onoff';
-id_piloto = '50';
-ch_n_power = 1e-1;
 ch_model = 'lpf';
-ch_par = [10, 2000];
-
-debug = 0;
-v.debug = debug;
+ch_par = [4, 18000];
+ch_n_power = 1e-5;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-m = fonte_sinal(fonte_fileName);
-s = modulador(m, cod_linha, id_piloto);
+m = fonte_sinal();
+s = modulador(m);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Canal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-n = src_ch_noise(ch_n_power, length(s));
+n = src_noise(ch_n_power);
 r = channel(s, ch_model, ch_par) + n;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Receptor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-bs_demod = demodulador(r, cod_linha, id_piloto);
+y = demodulador(r);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Saída de Resultados e Gráficos
+%% Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sk_timePlot({s, r}, {'s', 'r'}, {'c', 'c'});
-taxa_erro_bit = comm_calcula_taxa_erro_bit(m, bs_demod);
+sk_freqSubPlot({m, s, y}, {'m', 's', 'y'}, {v.F_Nyquist, v.F_Nyquist, v.F_Nyquist});
+aud_audioPlay(m, 1);
+aud_audioPlay(s, 1);
+aud_audioPlay(y, 1);

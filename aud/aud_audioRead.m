@@ -8,6 +8,7 @@ function aud = aud_audioRead(audio_file, T)
   aud = aud(:,1);
 
   v.Fs_audio = Fs_audio;
+  v.F_Nyquist = Fs_audio/2;
   v.N = length(aud);
 
 endfunction

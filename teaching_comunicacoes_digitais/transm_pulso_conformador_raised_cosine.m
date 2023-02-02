@@ -34,24 +34,13 @@ function y = channel(s, ch_model, ch_par, rm_grd)
 
   global v;
 
-  [b, a] = selecionador_canal(ch_model, ch_par);
+  [b, a, delay] = selecionador_canal(ch_model, ch_par, 'irp');
   y = filter(b, a, s);
 
   if(rm_grd)
 
-    %[g, w_g] = grpdelay(b, a, [], v.Fs);
-    %grd = round(mean(g));
-
-    % Determina o atraso de grupo pelo pico da resposta ao impulso.
-    imp_resp = impz(b, a);
-    [pks idx] = findpeaks(imp_resp, 'DoubleSided');
-    pks
-    pico = max(pks)
-    grd = find(imp_resp==pico)
-
-    y(1:grd-1) = [];
-    y = [y; zeros(grd-1, 1)];
-
+    y(1:delay-1) = [];
+    y = [y; zeros(delay-1, 1)];
   endif
 
 endfunction

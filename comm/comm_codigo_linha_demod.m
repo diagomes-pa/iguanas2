@@ -1,5 +1,5 @@
 function bs = comm_codigo_linha_demod(r, cod_linha)
-  % r: sinal receido, em que o sinal piloto foi removido.
+  % r: sinal recebido, em que o sinal piloto foi removido.
   % cod_linha: tipo de código de linha que será usado na transmissão.
 
   global v;

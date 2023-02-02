@@ -30,7 +30,7 @@ function sk_timeSubPlot(sig, tit, time_gran)
     xlabel("Tempo")
     title(tit{p})
     h=get(gcf, "currentaxes");
-    set(h, "fontsize", 14);
+    set(h, "fontsize", 16);
     grid
 
   endfor

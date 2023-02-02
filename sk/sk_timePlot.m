@@ -36,9 +36,9 @@ function sk_timePlot(sig, leg, time_gran)
 
   y_range = max_val - min_val;
   axis([v.t(1) v.t(end) (min_val-0.25*y_range) (max_val+0.25*y_range)])
-  xlabel("Tempo")
+  xlabel("Tempo");
   h=get(gcf, "currentaxes");
-  set(h, "fontsize", 14);
+  set(h, "fontsize", 18);
   l = legend(leg);
   set(l, "fontsize", 14)
   grid

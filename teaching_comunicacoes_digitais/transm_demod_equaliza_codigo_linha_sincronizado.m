@@ -4,28 +4,43 @@
 clear
 close
 clc
+warning('off', 'all');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o fonte de sinal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function m = fonte_sinal(fonte_fileName)
+function m = fonte_sinal(fonte_fileName, eq_N)
 
   global v;
 
   m = txtFile_num_to_bs(fonte_fileName, 8, 'natural');
-  v.n_Tx_bits = length(m);
+
+  % Sinal piloto usado para treinar o equalizador.
+  eq_piloto = [];
+  for eq_p = 1 : 4*eq_N + 1
+    if(eq_p == 2*eq_N+1)
+      eq_piloto = [eq_piloto; '1'];
+    else
+      eq_piloto = [eq_piloto; '0'];
+    endif
+  endfor
+
+  m = [eq_piloto; m];
+  v.n_Tx_bits = length(m); % Para informar o receptor quantos bits devem ser decodificados
 
 endfunction
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o modulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function x = modulador(m, cod_linha, id_piloto)
+function x = modulador(m, code, rolloff, id_piloto, pot_piloto)
 
   global v;
 
-  s = comm_codigo_linha_mod(m, cod_linha);
-  x =  comm_anexa_piloto(s, id_piloto);
+  n_symb = 3;
+
+  s = comm_rcosine_binary_mod(m, rolloff, code, n_symb);
+  x =  comm_anexa_piloto(s, id_piloto, pot_piloto);
 
 endfunction
 
@@ -44,12 +59,15 @@ endfunction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o demodulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function bs = demodulador(r, cod_linha, id_piloto)
+function bs = demodulador(r, code, id_piloto, eq_tipo, eq_N, eq_K)
 
   global v;
 
+  n_symb = 3;
+
   r_sincronizado = comm_sincronizador_piloto(r, id_piloto);
-  bs = comm_codigo_linha_demod(r_sincronizado, cod_linha);
+  r_equalizado = comm_equalizador(r_sincronizado, eq_tipo, eq_N, eq_K);
+  bs = comm_rcosine_binary_demod(r_equalizado, code, n_symb);
 
 endfunction
 
@@ -63,26 +81,26 @@ global v;
 Ts = 1/44100; % Período de amostragem
 T = 1; % Tempo total da simulação
 Tsym = 40*Ts; % Período de símbolo
-v = set_fund_vars_digital(Ts, T, Tsym);
-
-debug = 1;
-v.debug = debug;
+debug = 0; % Determina se a simulação vai mostrar as infomrmações internas de algumas etapas.
+v = set_fund_vars_digital(Ts, T, Tsym, debug);
 
 fonte_fileName = 'data_sample/random_numbers_100.txt';
-cod_linha = 'nrz-onoff';
+code = 'onoff';
+rolloff = 0.5;
 id_piloto = '50';
-ch_n_power = 1e-1;
+pot_piloto = 5;
+ch_n_power = 0;
 ch_model = 'lpf';
-ch_par = [10, 2000];
-
-debug = 0;
-v.debug = debug;
+ch_par = [4, 250];
+eq_tipo = 'mmse';
+eq_N = 9; % Ordem do equalizador
+eq_K = 11;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-m = fonte_sinal(fonte_fileName);
-s = modulador(m, cod_linha, id_piloto);
+m = fonte_sinal(fonte_fileName, eq_N);
+s = modulador(m, code, rolloff, id_piloto, pot_piloto);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Canal
@@ -93,7 +111,7 @@ r = channel(s, ch_model, ch_par) + n;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Receptor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-bs_demod = demodulador(r, cod_linha, id_piloto);
+bs_demod = demodulador(r, code, id_piloto, eq_tipo, eq_N, eq_K);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Saída de Resultados e Gráficos

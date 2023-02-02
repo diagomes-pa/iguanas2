@@ -1,6 +1,7 @@
-function sinal_com_piloto = comm_anexa_piloto(s, id_piloto)
+function sinal_com_piloto = comm_anexa_piloto(s, id_piloto, pot_piloto)
   % s: sinal modulado que será transmitido.
   % id_piloto: identificação do piloto que será anexado.
+  % pot_piloto: potência do piloto.
 
   switch id_piloto
     case '50'
@@ -11,7 +12,7 @@ function sinal_com_piloto = comm_anexa_piloto(s, id_piloto)
       arquivo_piloto = 'data_sample/piloto_200.txt';
   endswitch
 
-  piloto = load(arquivo_piloto);
+  piloto = sqrt(pot_piloto)*load(arquivo_piloto);
 
   sinal_com_piloto = [piloto; s];
   sinal_com_piloto(end-(length(piloto)-1):end) = []; % Remove do fim do sinal a quantidade

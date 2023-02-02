@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Simulação do tipo transmissão.
+%% Simulação do tipo Experimento.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear
 close
@@ -13,19 +13,19 @@ function m = fonte_sinal(fonte_fileName)
   global v;
 
   m = txtFile_num_to_bs(fonte_fileName, 8, 'natural');
-  v.n_Tx_bits = length(m);
 
 endfunction
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o modulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function x = modulador(m, cod_linha, id_piloto)
+function s = modulador(m)
 
   global v;
 
-  s = comm_codigo_linha_mod(m, cod_linha);
-  x =  comm_anexa_piloto(s, id_piloto);
+  cod_type = 'nrz-polar';
+
+  s = comm_codigo_linha_mod(m, cod_type);
 
 endfunction
 
@@ -36,7 +36,7 @@ function r = channel(s, ch_model, ch_par)
 
   global v;
 
-  [b, a] = selecionador_canal(ch_model, ch_par);
+  [b, a, delay] = selecionador_canal(ch_model, ch_par, 'irp');
   r = filter(b, a, s);
 
 endfunction
@@ -44,12 +44,11 @@ endfunction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o demodulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function bs = demodulador(r, cod_linha, id_piloto)
+function y = demodulador(r)
 
   global v;
 
-  r_sincronizado = comm_sincronizador_piloto(r, id_piloto);
-  bs = comm_codigo_linha_demod(r_sincronizado, cod_linha);
+  y = r;
 
 endfunction
 
@@ -60,43 +59,56 @@ endfunction
 %% Variáveis da simulação
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 global v;
-Ts = 1/44100; % Período de amostragem
-T = 1; % Tempo total da simulação
-Tsym = 40*Ts; % Período de símbolo
-v = set_fund_vars_digital(Ts, T, Tsym);
+Ts = 0.0001; % Período de amostragem
+T = 0.1; % Tempo total da simulação
+Tsym = 0.01; % Período de símbolo
+debug = 0; % Determina se a simulação vai mostrar as infomrmações internas de algumas etapas.
+v = set_fund_vars_digital(Ts, T, Tsym, debug);
 
-debug = 1;
-v.debug = debug;
-
-fonte_fileName = 'data_sample/random_numbers_100.txt';
-cod_linha = 'nrz-onoff';
-id_piloto = '50';
-ch_n_power = 1e-1;
+fonte_fileName = 'data_sample/one_number.txt';
+ch_gain = 0.5; % Ganho do canal.
 ch_model = 'lpf';
-ch_par = [10, 2000];
+ch_par = [4, 100];
+ch_n_power = 1e-1;
 
-debug = 0;
-v.debug = debug;
+modificacao_canal = 4; % 0: canal ideal.
+                       % 1: atenuação.
+                       % 2: distorção.
+                       % 3: ruído.
+                       % 4: atenuação, distorção e ruído.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 m = fonte_sinal(fonte_fileName);
-s = modulador(m, cod_linha, id_piloto);
+s = modulador(m);
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Canal
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-n = src_ch_noise(ch_n_power, length(s));
-r = channel(s, ch_model, ch_par) + n;
+switch(modificacao_canal)
+  case 0
+    r = s;
+   case 1
+    r = ch_gain*s;
+   case 2
+    r = channel(s, ch_model, ch_par);
+   case 3
+    n = src_noise(ch_n_power);
+    r = s + n;
+   case 4
+    n = src_noise(ch_n_power);
+    r = ch_gain*channel(s, ch_model, ch_par) + n;
+endswitch
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Receptor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-bs_demod = demodulador(r, cod_linha, id_piloto);
+y = demodulador(r);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Saída de Resultados e Gráficos
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sk_timePlot({s, r}, {'s', 'r'}, {'c', 'c'});
-taxa_erro_bit = comm_calcula_taxa_erro_bit(m, bs_demod);
+sk_timeSubPlot({s, r}, {'s', 'r'}, {'c', 'c'});

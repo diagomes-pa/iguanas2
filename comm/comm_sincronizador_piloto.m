@@ -12,9 +12,8 @@ function r_sincronizado = comm_sincronizador_piloto(r, id_piloto,debug)
 
   if(v.debug)
 
-    disp(strcat('O inicio do sinal modulado foi lozalizado no indice: ', num2str(indice_inicio_sinal)));
+    disp(strcat('O inicio do sinal modulado foi lozalizado no indice:  ', num2str(indice_inicio_sinal)));
     disp('');
-
     sk_timeSubPlot({r, r_sincronizado}, {'Sinal Recebido', 'Sinal Recebido Sincronizado'}, {'c', 'c'});
 
   endif

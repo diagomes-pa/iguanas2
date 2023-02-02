@@ -4,6 +4,7 @@
 clear
 close
 clc
+warning('off', 'all');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o fonte de sinal
@@ -20,12 +21,12 @@ endfunction
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Configura o modulador
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function x = modulador(m, cod_linha, id_piloto)
+function x = modulador(m, cod_linha, id_piloto, pot_piloto)
 
   global v;
 
   s = comm_codigo_linha_mod(m, cod_linha);
-  x =  comm_anexa_piloto(s, id_piloto);
+  x =  comm_anexa_piloto(s, id_piloto, pot_piloto);
 
 endfunction
 
@@ -63,23 +64,22 @@ global v;
 Ts = 1/44100; % Período de amostragem
 T = 1; % Tempo total da simulação
 Tsym = 40*Ts; % Período de símbolo
-v = set_fund_vars_digital(Ts, T, Tsym);
-
-debug = 0;
-v.debug = debug;
+debug = 0; % Determina se a simulação vai mostrar as infomrmações internas de algumas etapas.
+v = set_fund_vars_digital(Ts, T, Tsym, debug);
 
 fonte_fileName = 'data_sample/random_numbers_100.txt';
-jamming_fileName = 'data_sample/sinal_jamming_naive_1e-2_44100.txt';
+jamming_fileName = 'data_sample/oi.txt';
 cod_linha = 'nrz-onoff';
 id_piloto = '50';
-ch_model = 'lpf';
-ch_par = [10, 2000];
+pot_piloto = 5;
+ch_model = 'id';
+ch_par = [10, 20000];
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Transmissor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 m = fonte_sinal(fonte_fileName);
-s = modulador(m, cod_linha, id_piloto);
+s = modulador(m, cod_linha, id_piloto, pot_piloto);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Canal

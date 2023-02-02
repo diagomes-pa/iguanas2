@@ -1,0 +1,4 @@
+Os códigos dos iguanas2 usam alguns scripts de pacotes extras do GNU Octave, como do communications e signal. Para que o simulador rode corretamente, é importante instalar esses pacotes antes de utilizá-lo.
+Para instalar os pacotes extras, digite na janela de comando:
+pkg install -forge signal
+pkg install -forge communications

@@ -1,4 +1,4 @@
-function v = set_fund_vars_digital(Ts_, T_, Tsym_)
+function v = set_fund_vars_digital(Ts_, T_, Tsym_, debug)
   # Configures the fundamental variables.
 
    v.Ts = Ts_; % Time sampling
@@ -11,5 +11,6 @@ function v = set_fund_vars_digital(Ts_, T_, Tsym_)
    v.Tsym = Tsym_; % Período de símbolo
    v.Rsym = 1/Tsym_; % Taxa de símbolos
    v.L = Tsym_/Ts_; % Número de amostras por símbolo.
+   v.debug = debug;
 
 endfunction
